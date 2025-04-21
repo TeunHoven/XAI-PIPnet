@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bird Identifier</title>
+</head>
+<body>
+    <h1>Bird Image Recognizer</h1>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="image" required>
+        <input type="submit" value="Upload">
+    </form>
+
+    {% if filename %}
+        <h2>Prediction: {{ prediction }}</h2>
+        <img src="{{ url_for('display_image', filename=filename) }}" width="300">
+    {% endif %}
+</body>
+</html>
