@@ -1,1 +1,8 @@
-.venv
+.venv/
+pipnet/
+runs/run_pipnet/*
+data/
+static/uploads/images/
+static/local_prototypes/explanations/*
+static/local_prototypes/*.png
+static/global_prototypes/
