@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BirdLens - Identify Your Bird</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>🔋 BirdLens - Identify Your Bird</header>
+    <div class="container">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="upload-box">
+                <h2>BirdLens ID</h2>
+                <p>Take a photo or upload an image to identify bird species</p>
+                <label class="upload-btn">
+                    Choose Photo
+                    <input type="file" name="image" onchange="this.form.submit()">
+                </label>
+                <p style="margin-top: 0.5rem; font-size: 0.85rem;">Supported: JPG, PNG (Max 10MB)</p>
+            </div>
+        </form>
+
+        {% if filename %}
+            <h2>Uploaded Image:</h2>
+            <img src="{{ url_for('display_image', filename=filename, time=time.time()) }}" width="300">
+            <h3>Prediction: {{ prediction }}</h3>
+            <p class="prediction">Score: {{ score | round(2) }}%</p>
+        {% endif %}
+
+
+        <div class="about-box">
+            <h3>About PIP-net</h3>
+            <ul>
+                <li>🔍 Analyzes your photo for key features</li>
+                <li>📊 Matches features to learned prototypes</li>
+                <li>🧠 Shows you exactly which features it recognized</li>
+            </ul>
+        </div>
+
+        <section class="prototypes-card">
+            <h1>Local Prototypes</h1>
+            <p>These are the visual patterns the AI uses to recognize bird species:</p>
+            <div class="prototypes-grid">
+                {% for prototype in local_prototypes %}
+                <div class="prototype-row">
+                    <div class="prototype-column">
+                        <img src="{{ url_for('display_local_prototype', prototype_id=prototype.id, time=time.time()) }}" alt="Prototype {{ prototype.id }}">
+                        <div class="label">Prototype {{ prototype.id }}</div>
+                        <div class="label">Similarity: {{ prototype.similarity * 100 | round(2) }}%</div>
+                        <div class="label">Weight: {{ prototype.weight | round(2) }}</div>
+                    </div>
+    
+                    <div class="explanations-row">
+                        {% for explanation in prototype.explanations %}
+                            <div class="explanation-image">
+                                <img src="{{ url_for('static', filename='local_prototypes/explanations/' + explanation) }}"
+                                     alt="Explanation for {{ prototype.id }}">
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        
+        <section class="prototypes-card">
+            <h1>Global Prototypes</h1>
+            <p>These are other visual patterns the AI uses to recognize the bird species:</p>
+            {% if global_prototypes %}
+                <div class="prototypes-grid-global">
+                    {% for prototype in global_prototypes %}
+                            <div class="prototype-column">
+                                <img src="{{ url_for('display_global_prototype', prototype_id=prototype.id, time=time.time()) }}" alt="Prototype {{ prototype.id }}">
+                                <div class="label">Prototype {{ prototype.id }}</div>
+                            </div>
+                    {% endfor %}
+                {% else %}
+                    <h2>No global prototypes available</h2>
+                    <p>The model has used all available prototypes for this image.</p>
+                {% endif %}
+            </div>
+        </section>        
+    </div>
+</body>
+</html>
