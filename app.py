@@ -231,6 +231,61 @@ def get_relevant_prototypes(class_name, local_prototypes):
 
     return relevant_prototypes
 
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+
+        if remove_all_files():
+            print("All files removed successfully.")
+        else:
+            print("Failed to remove files.")
+
+        if 'image' not in request.files:
+            return redirect(request.url)
+        
+        file = request.files['image']
+
+        if file.filename == '':
+            return redirect(request.url)
+        
+        if file:
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], "images", filename)
+            file.save(filepath)
+
+            class_id, class_name, score, folder = predict_bird(filename)
+
+            if class_id is None:
+                return render_template('index.html', filename=filename, prediction=None, time=time)
+            
+            # only get the prototype id from the filename
+            class_relevant_prototypes = relevant_protypes[int(class_id)-1]
+            class_relevant_prototypes = [p[0] for p in class_relevant_prototypes]
+            print(class_relevant_prototypes)
+
+            print("Relevant prototypes:", class_relevant_prototypes)
+
+            local_prototypes = get_local_prototypes(filename.split(".")[0], folder, class_name)
+            
+            for local_prototype in local_prototypes:
+                if len(local_prototype["explanations"]) > 3:
+                    # Get 3 random explanations
+                    local_prototype["explanations"] = np.random.choice(local_prototype["explanations"], size=3, replace=False).tolist()
+
+            # difference between local_prototypes and relevant_prototypes
+            global_prototypes = [relevant_prototype for relevant_prototype in class_relevant_prototypes if relevant_prototype not in [int(prototype_id["id"]) for prototype_id in local_prototypes]]
+
+            print("Global prototypes:", global_prototypes)
+
+            if len(global_prototypes) == 0:
+                global_prototypes = None
+            else:
+                global_prototypes = get_global_prototypes(class_name, global_prototypes)
+
+            return render_template('index.html', filename=filename, prediction=class_name, score=score, local_prototypes=local_prototypes, global_prototypes=global_prototypes, time=time)
+        
+    return render_template('index.html', filename=None, time=time)
+
 @app.route('/local', methods=['GET', 'POST'])
 def index_local():
     if request.method == 'POST':
@@ -337,9 +392,9 @@ def index_global():
             else:
                 global_prototypes = get_global_prototypes(class_name, global_prototypes)
 
-            return render_template('index.html', filename=filename, prediction=class_name, score=score, local_prototypes=local_prototypes, global_prototypes=global_prototypes, time=time)
+            return render_template('index_global.html', filename=filename, prediction=class_name, score=score, local_prototypes=local_prototypes, global_prototypes=global_prototypes, time=time)
         
-    return render_template('index.html', filename=None, time=time)
+    return render_template('index_global.html', filename=None, time=time)
 
 @app.route('/display/prototypes/global/<prototype_id>?time=<time>')
 def display_global_prototype(prototype_id, time):

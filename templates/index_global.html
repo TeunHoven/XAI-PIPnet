@@ -69,31 +69,26 @@
             </section>
             
             <section class="prototypes-card">
-                <h1 class="prototypes-title" style="cursor: pointer;" onclick="toggleCard('globalPrototypesContent')">
-                    ▶ Prototypes not in Uploaded Picture
-                </h1>
-                <p class="prototypes-subtitle" id="globalPrototypesSubtitle">These are other typical bird features the AI has learned, but didn’t find in your photo.</p>
-                
-                <div id="globalPrototypesContent" style="display: none;">
-                    {% if global_prototypes %}
-                        <div class="prototypes-grid-global">
-                            {% for prototype in global_prototypes %}
-                                <div class="prototype-row">
-                                    <div class="prototype-column">
-                                        <img src="{{ url_for('display_global_prototype', prototype_id=prototype.id, time=time.time()) }}" alt="Prototype {{ prototype.id }}">
-                                        <div class="label">Prototype {{ prototype.id }}</div>
-                                    </div>
+                <h1 class="prototypes-title">Prototypes not in Uploaded Picture</h1>
+                <p class="prototypes-subtitle">These are other typical bird features the AI has learned, but didn’t find in your photo.</p>
+                {% if global_prototypes %}
+                    <div class="prototypes-grid-global">
+                        {% for prototype in global_prototypes %}
+                            <div class="prototype-row">
+                                <div class="prototype-column">
+                                    <img src="{{ url_for('display_global_prototype', prototype_id=prototype.id, time=time.time()) }}" alt="Prototype {{ prototype.id }}">
+                                    <div class="label">Prototype {{ prototype.id }}</div>
                                 </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="no-prototypes">
-                            <h2>No Additional Visual Prototypes</h2>
-                            <p>The AI used all available visual patterns for this specific image.</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </section>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-prototypes">
+                        <h2>No Additional Visual Prototypes</h2>
+                        <p>The AI used all available visual patterns for this specific image.</p>
+                    </div>
+                {% endif %}
+            </section> 
         {% else %}
             <section class="no-prediction">
                 <h2>No Prediction Available</h2>
@@ -101,19 +96,5 @@
             </section>
         {% endif %}       
     </div>
-
-    <script>
-        function toggleCard(contentId) {
-            const content = document.getElementById(contentId);
-            const title = document.querySelector('.prototypes-title');
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                title.innerHTML = '▼ Prototypes not in Uploaded Picture';
-            } else {
-                content.style.display = 'none';
-                title.innerHTML = '▶ Prototypes not in Uploaded Picture';
-            }
-        }
-    </script>
 </body>
 </html>
